@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Аргунский маршрут: от «Сердца Чечни» до «города мёртвых»</title>
+  <meta name="description" content="Интерактивный путеводитель по Чечне: 10 остановок из Грозного через Аргунское ущелье к некрополю Цой-Педе.">
+
+  <!-- Шрифты: с интернетом — Playfair Display и Manrope, без интернета — Georgia и системный -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..800;1,400..700&family=Manrope:wght@300..700&display=swap">
+
+  <link rel="stylesheet" href="vendor/leaflet.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============ ЗАСТАВКА ============ -->
+<div id="intro" role="dialog" aria-label="Заставка">
+  <div class="intro-box">
+    <svg class="intro-ring" viewBox="0 0 200 200" aria-hidden="true">
+      <circle cx="100" cy="100" r="92"/>
+      <circle class="dots" cx="100" cy="100" r="80"/>
+      <path class="spiral" d="M100 100 m0 0 a6 6 0 1 1 6 6 a14 14 0 1 1 -14 -14 a24 24 0 1 1 24 24 a36 36 0 1 1 -36 -36 a50 50 0 1 1 50 50"/>
+    </svg>
+    <p class="intro-kicker">Интерактивный путеводитель · Чеченская Республика</p>
+    <h1 class="intro-title" aria-label="Аргунский маршрут"><span>Аргунский</span> <em>маршрут</em></h1>
+    <p class="intro-sub">от «Сердца Чечни» до «города мёртвых» · 10 остановок</p>
+    <div class="intro-bar"><i></i></div>
+    <button class="btn intro-go" id="enter" type="button">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2.5v11L13 8z"/></svg>Начать путь
+    </button>
+  </div>
+</div>
+
+<!-- ============ ФОН: зерно и виньетка ============ -->
+<div class="grain" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<!-- ============ ВЕРХНЯЯ ПАНЕЛЬ ============ -->
+<header class="topbar">
+  <a class="brand" href="#top"><b>Аргунский маршрут</b><i></i><span>Чечня · 10 остановок</span></a>
+  <nav class="menu" aria-label="Разделы">
+    <a href="#about">Чечня</a>
+    <a href="#map-section">Карта</a>
+    <a href="#stop-1">Остановки</a>
+    <a href="#coin">Монета</a>
+    <a href="#sources">Источники</a>
+  </nav>
+</header>
+<div class="cur-ring" id="cur" aria-hidden="true"></div>
+
+<!-- ============ ЛЕВАЯ ШКАЛА МАРШРУТА ============ -->
+<nav class="rail" id="rail" aria-label="Шкала маршрута">
+  <div class="rail-cap">Маршрут</div>
+  <div class="rail-line"></div>
+  <div id="rail-ticks"></div>
+  <div class="rail-mark" id="rail-mark"><div class="rail-val"><b id="rail-num">01</b><small>/10</small><span id="rail-name">Грозный</span></div></div>
+</nav>
+
+<main id="top">
+
+  <!-- ============ 1. ГЕРОЙ ============ -->
+  <section class="scene hero" id="hero">
+    <div class="scene-bg"><img src="images/06-ushkaloyskie-bashni.jpg" alt="" data-file="images/06-ushkaloyskie-bashni.jpg"></div>
+    <div class="scene-scrim"></div>
+    <canvas class="dust" id="dust" aria-hidden="true"></canvas>
+    <svg class="ridges" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true">
+      <path class="r1" d="M0 190 L90 150 L170 175 L260 110 L340 160 L430 95 L520 150 L600 120 L690 60 L780 130 L860 100 L950 150 L1040 85 L1130 140 L1220 105 L1320 160 L1440 120 L1440 320 L0 320Z"/>
+      <path class="r2" d="M0 240 L120 200 L220 230 L330 185 L450 225 L560 190 L680 235 L800 195 L910 230 L1030 190 L1150 228 L1270 200 L1440 230 L1440 320 L0 320Z"/>
+      <path class="r3" d="M0 285 L160 262 L300 280 L460 258 L620 284 L780 262 L940 286 L1100 264 L1260 282 L1440 266 L1440 320 L0 320Z"/>
+    </svg>
+    <div class="scene-content">
+      <p class="eyebrow">Проект по ОРГ · НИУ ВШЭ</p>
+      <svg class="orn" viewBox="0 0 154 22" aria-hidden="true"><path pathLength="1" d="M2 11h40m70 0h40M52 11c0-6 8-9 12-5s-2 10-6 7M102 11c0-6-8-9-12-5s2 10 6 7M66 11c4-8 18-8 22 0s-18 8-22 0z"/></svg>
+      <h1 class="split-title"><span class="split">Аргунский маршрут:</span><br><em class="split">от «Сердца Чечни» до «города мёртвых»</em></h1>
+      <p class="lead">Из современного Грозного — мемориал, музей, мечеть, небоскрёбы и «море» — на юг, через Аргунское ущелье, водопады и средневековые башни к древнему некрополю почти у границы с Грузией.</p>
+      <div class="cta">
+        <a class="btn" href="#map-section"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 3.5l4-1.5 5 2 4-1.5v10l-4 1.5-5-2-4 1.5z M5.5 2v10 M10.5 4v10" fill="none"/></svg>Карта маршрута</a>
+        <a class="btn ghost" href="#stop-1">Сразу к первой остановке</a>
+      </div>
+    </div>
+    <div class="scroll-hint" aria-hidden="true"><i></i>Листайте</div>
+  </section>
+
+  <!-- ============ 2. ЧТО ТАКОЕ ЧЕЧНЯ (текст Влада) ============ -->
+  <section class="scene about" id="about">
+    <div class="big-word" aria-hidden="true">Нохчийчоь</div>
+    <div class="about-grid reveal">
+      <div>
+        <p class="eyebrow">Регион</p>
+        <h2 class="split-title"><span class="split">Что такое</span> <em class="split">Чечня</em></h2>
+        <p class="lead">Чечня — республика в составе Российской Федерации на Северном Кавказе. Полное название — Чеченская Республика, столица — Грозный.</p>
+        <p class="body">На севере республика граничит со Ставропольским краем, на востоке — с Дагестаном, на западе — с Ингушетией и Северной Осетией — Аланией, на юге — с Грузией. Площадь — около 15,6 тыс. км².</p>
+        <p class="body">Население — преимущественно чеченцы, также здесь живут русские, ингуши и другие народы. Официальные языки — русский и чеченский. Север республики — равнины, юг занят хребтами Большого Кавказа: туда и ведёт наш маршрут. Основные отрасли экономики — сельское хозяйство, строительство, торговля, энергетика и промышленность.</p>
+      </div>
+      <ul class="stat-grid">
+        <li><b><span data-count="15.6" data-dec="1">15,6</span></b><span>тыс. км² — площадь республики</span></li>
+        <li><b><span data-count="5">5</span></b><span>соседей: Ставрополье, Дагестан, Ингушетия, Северная Осетия, Грузия</span></li>
+        <li><b><span data-count="2">2</span></b><span>официальных языка — русский и чеченский</span></li>
+        <li><b>Грозный</b><span>столица и стартовая точка маршрута</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ 3. КАРТА + характеристика маршрута (Влад) ============ -->
+  <section class="scene map-scene" id="map-section">
+    <div class="map-head reveal">
+      <p class="eyebrow">Маршрут</p>
+      <h2 class="split-title"><span class="split">Из Грозного</span> <em class="split">на юг</em></h2>
+    </div>
+    <div class="map-layout reveal">
+      <div class="map-wrap">
+        <div id="map" role="region" aria-label="Интерактивная карта маршрута"></div>
+        <div class="map-soft" aria-hidden="true"></div>
+        <p class="map-offline" id="map-offline" hidden>Подложка карты не загрузилась (нет интернета?) — точки и линия маршрута на месте.</p>
+        <div class="legend">
+          <span><i class="dot dot-main"></i>главная остановка</span>
+          <span><i class="dot dot-way"></i>по пути</span>
+          <span><i class="line"></i>маршрут (по прямой между точками)</span>
+          <button class="map-play" id="map-play" type="button"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10 6z"/></svg><span>Проиграть маршрут</span></button>
+        </div>
+      </div>
+      <aside class="route-side">
+        <ol class="stop-list" id="stop-list"></ol>
+      </aside>
+    </div>
+    <div class="route-info reveal">
+      <p class="body">Маршрут идёт из Грозного в горную часть юга Чечни и сочетает культурные, природные и исторические достопримечательности. Дорога проходит через предгорья и горы: равнина сменяется ущельями и серпантинами. Самый живописный участок — Аргунское ущелье. Дорога к Цой-Педе идёт по удалённой местности, и последний участок требует больше времени.</p>
+      <ul class="chips">
+        <li class="chip"><b>Тип</b><span>историко-культурный + природный + горный туризм</span></li>
+        <li class="chip"><b>1 день</b><span>Грозный и Грозненское море</span></li>
+        <li class="chip"><b>2–3 дня</b><span>все 10 остановок</span></li>
+        <li class="chip"><b>Дорога</b><span>трасса Грозный — Шатой — Итум-Кали</span></li>
+      </ul>
+      <p class="body"><b>Идея:</b> от современной столицы через природу и средневековую архитектуру — к Цой-Педе, самому древнему слою истории Чечни.</p>
+    </div>
+  </section>
+
+  <!-- ============ 4. ОСТАНОВКИ (заполняются из js/data.js) ============ -->
+  <div id="stops"></div>
+
+  <!-- ============ 5. ФИНАЛ: МОНЕТА ============ -->
+  <section class="scene coin" id="coin">
+    <div class="coin-glow" aria-hidden="true"></div>
+    <div class="coin-grid reveal">
+      <div class="coin-stage">
+        <button class="coin3d" id="coin3d" type="button" aria-label="Перевернуть монету">
+          <span class="face front"><img src="images/moneta-10-rub-2010-revers.png" alt="Реверс монеты: герб Чеченской Республики" data-file="images/moneta-10-rub-2010-revers.png"></span>
+          <span class="face back"><img src="images/moneta-10-rub-2010-avers.png" alt="Аверс монеты: номинал 10 рублей, 2010" data-file="images/moneta-10-rub-2010-avers.png"></span>
+        </button>
+        <p class="coin-hint">Нажмите, чтобы перевернуть</p>
+      </div>
+      <div class="coin-text">
+        <p class="eyebrow">Финал</p>
+        <h2 class="split-title"><span class="split">10 рублей 2010 года</span> <em class="split">«Чеченская Республика»</em></h2>
+        <p class="lead">Чечня — удивительный и такой неизведанный регион России. Она увековечена во многих аспектах, но мы хотим рассказать вам об особой монете — 10 рублей 2010 года «Чеченская Республика». Покажем её!</p>
+        <ul class="chips">
+          <li class="chip"><b>1.10.2010</b><span>в обращении с этой даты · Банк России, серия «Российская Федерация»</span></li>
+          <li class="chip"><b>27 мм · 8,4 г</b><span>биметалл: латунное кольцо и медно-никелевый диск</span></li>
+          <li class="chip"><b>Реверс</b><span>герб ЧР: башня, горы, нефтяная вышка, национальный орнамент</span></li>
+        </ul>
+        <p class="body">Посмотрите внимательно — и увидите весь наш маршрут: башни Аргунского ущелья, горы Большого Кавказа и Грозный, выросший на нефти.</p>
+        <p class="coin-cta">Проверьте сдачу!</p>
+        <p class="src-inline">Источники:
+          <a href="https://www.russian-money.ru/coins/rf/rossijskaya-federaciya/10-rublej-2010-chechenskaya-respublika-spmd--2470" target="_blank" rel="noopener">russian-money.ru</a> ·
+          <a href="https://moneta-russia.ru/coins/rossiyskaya-federatsiya-2/10-rubley-2010-goda-chechenskaya-respublika/" target="_blank" rel="noopener">moneta-russia.ru</a> ·
+          <a href="https://www.cbr.ru/cash_circulation/memorable_coins/coins_base/ShowCoins/?cat_num=5514-0073" target="_blank" rel="noopener">Банк России</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6. ИСТОЧНИКИ ============ -->
+  <section class="sources-section" id="sources">
+    <div class="reveal">
+      <p class="eyebrow">Библиография</p>
+      <h2 class="split-title"><span class="split">Источники</span></h2>
+    </div>
+    <div class="src-cols">
+      <details open>
+        <summary>О республике и маршруте</summary>
+        <ol>
+          <li>Большая российская энциклопедия: Чеченская Республика. <a href="https://old.bigenc.ru/geography/text/5453415" target="_blank" rel="noopener">https://old.bigenc.ru/geography/text/5453415</a></li>
+          <li>Kavkaz.travel: туристический маршрут по Аргунскому ущелью. <a href="https://kavkaz.travel/en/touristRoutes/32" target="_blank" rel="noopener">https://kavkaz.travel/en/touristRoutes/32</a></li>
+          <li>Школьный туризм России: маршрут по Чечне. <a href="https://школьныйтуризмроссии.рф/routes/detail/?ELEMENT_ID=1116" target="_blank" rel="noopener">https://школьныйтуризмроссии.рф/routes/detail/?ELEMENT_ID=1116</a></li>
+          <li>Аргунский музей-заповедник: экскурсия в Цой-Педе. <a href="https://argmz.ru/экскурсия-в-цой-педе/" target="_blank" rel="noopener">https://argmz.ru/экскурсия-в-цой-педе/</a></li>
+          <li>Kavkaz.travel: Ушкалойские башни. <a href="https://kavkaz.travel/ru/attractions/81/ushkaloiskie-bashni" target="_blank" rel="noopener">https://kavkaz.travel/ru/attractions/81/ushkaloiskie-bashni</a></li>
+        </ol>
+      </details>
+      <div id="sources-by-stop"></div>
+      <details>
+        <summary>Монета</summary>
+        <ol>
+          <li>Банк России: база памятных монет, «Чеченская Республика». <a href="https://www.cbr.ru/cash_circulation/memorable_coins/coins_base/ShowCoins/?cat_num=5514-0073" target="_blank" rel="noopener">https://www.cbr.ru/cash_circulation/memorable_coins/coins_base/ShowCoins/?cat_num=5514-0073</a></li>
+          <li>Russian-money.ru: 10 рублей 2010 «Чеченская Республика». <a href="https://www.russian-money.ru/coins/rf/rossijskaya-federaciya/10-rublej-2010-chechenskaya-respublika-spmd--2470" target="_blank" rel="noopener">https://www.russian-money.ru/coins/rf/rossijskaya-federaciya/10-rublej-2010-chechenskaya-respublika-spmd--2470</a></li>
+          <li>Moneta-russia.ru: 10 рублей 2010 года «Чеченская Республика». <a href="https://moneta-russia.ru/coins/rossiyskaya-federatsiya-2/10-rubley-2010-goda-chechenskaya-respublika/" target="_blank" rel="noopener">https://moneta-russia.ru/coins/rossiyskaya-federatsiya-2/10-rubley-2010-goda-chechenskaya-respublika/</a></li>
+        </ol>
+      </details>
+      <details>
+        <summary>Фотографии</summary>
+        <ol id="photo-credits"></ol>
+      </details>
+    </div>
+    <p class="note">Карта: © участники OpenStreetMap, библиотека Leaflet. Линия маршрута условная — точки соединены по прямой, реальная дорога извилистее.</p>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <svg class="orn" viewBox="0 0 154 22" aria-hidden="true"><path pathLength="1" d="M2 11h40m70 0h40M52 11c0-6 8-9 12-5s-2 10-6 7M102 11c0-6-8-9-12-5s2 10 6 7M66 11c4-8 18-8 22 0s-18 8-22 0z"/></svg>
+  <p>Проект по ОРГ, НИУ ВШЭ. Команда: Рахман, Тихон, Влад, Миша</p>
+  <a href="#top">Наверх ↑</a>
+</footer>
+
+<!-- ============ ПАНЕЛЬ «ЧИТАТЬ ПОЛНОСТЬЮ» ============ -->
+<div class="drawer-back" id="drawer-back"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" hidden>
+  <button class="drawer-x" id="drawer-x" type="button" aria-label="Закрыть">×</button>
+  <div class="drawer-inner" id="drawer-inner"></div>
+</aside>
+
+<!-- ============ ФОТО НА ВЕСЬ ЭКРАН ============ -->
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <img id="lb-img" alt="">
+  <div class="lb-cap"><p class="eyebrow" id="lb-k"></p><h3 id="lb-t"></h3></div>
+  <button class="lb-x" id="lb-x" type="button" aria-label="Закрыть фото">×</button>
+</div>
+
+<script src="vendor/leaflet.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script src="js/extras.js"></script>
+</body>
+</html>
